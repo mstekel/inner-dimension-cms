@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     # API & Extensions
     'corsheaders',
     'wagtail.api.v2',
+    'wagtail.locales',
     'wagtail.contrib.simple_translation',
     
     # Custom content app focusing on inner teachings
@@ -44,6 +45,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware', # Put at top
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -88,11 +90,17 @@ WAGTAILAPI_BASE_URL = os.environ.get('WAGTAILAPI_BASE_URL', 'http://localhost:80
 WAGTAILADMIN_BASE_URL = os.environ.get('WAGTAILADMIN_BASE_URL', 'http://localhost:8000')
 WAGTAIL_SITE_NAME = 'The Inner Dimension Library'
 WAGTAIL_I18N_ENABLED = True
-WAGTAIL_CONTENT_LANGUAGES = [
+
+USE_I18N = True
+USE_TZ = True
+LANGUAGE_CODE = 'en'
+LANGUAGES = [
     ('en', 'English'),
     ('he', 'Hebrew'),
     ('ru', 'Russian'),
 ]
+
+WAGTAIL_CONTENT_LANGUAGES = LANGUAGES
 
 # Static Files
 STATIC_URL = '/static/'
