@@ -1,7 +1,7 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'The Inner Dimension',
+  title: 'Gal Einai | גל עיני',
   description: 'Torah Wisdom and Kabbalah of Rabbi Yitzchak Ginsburgh',
 }
 

@@ -7,6 +7,7 @@ type Teachings = {
 
 const LOCALIZED_CONTENT = {
   en: {
+    title: 'Torah Library: The Inner Dimension',
     tag: '“Open my eyes, that I may behold wonders from Your Torah” (Psalms 119:18)',
     description: 'Synthesizing the inner dimensions of the Torah, Kabbalah, and Chassidic mysticism with modern science, mathematics, psychology, and the rectification of the human soul.',
     empty: 'No articles found in this language yet.',
@@ -14,6 +15,7 @@ const LOCALIZED_CONTENT = {
     brand: 'Gal Einai',
   },
   he: {
+    title: 'ספריית תורת הפנימיות',
     tag: '״גַּל עֵינַי וְאַבִּיטָה נִפְלָאוֹת מִתּוֹרָתֶךָ״ (תהלים קיט, יח)',
     description: 'שילוב פנימיות התורה, חכמת הקבלה ועמקי החסידות עם עולם המדע, המתמטיקה, הפסיכולוגיה ותיקון הנפש והעולם.',
     empty: 'אין עדיין מאמרים בשפה זו.',
@@ -21,6 +23,7 @@ const LOCALIZED_CONTENT = {
     brand: 'גל עיני',
   },
   ru: {
+    title: 'Библиотека Торы: Внутреннее Измерение',
     tag: '«Открой глаза мои, и увижу чудеса Торы Твоей» (Псалмы 119:18)',
     description: 'Синтез внутреннего измерения Торы, Каббалы и хасидского мистицизма с современными науками, математикой, психологией и исправлением души.',
     empty: 'В этой категории пока нет статей.',
@@ -29,7 +32,7 @@ const LOCALIZED_CONTENT = {
   }
 };
 
-async function getSiteTitle(locale: string): Promise<string> {
+async function getSiteTitle(locale: string, fallbackTitle: string): Promise<string> {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
   try {
     if (locale === 'en') {
@@ -38,7 +41,7 @@ async function getSiteTitle(locale: string): Promise<string> {
       });
       if (res.ok) {
         const data = await res.json();
-        return data.title || 'The Inner Dimension Torah Library';
+        return data.title || fallbackTitle;
       }
     } else {
       const res = await fetch(`${backendUrl}/api/v2/pages/?translation_of=2&locale=${locale}&fields=_,title`, {
@@ -54,7 +57,7 @@ async function getSiteTitle(locale: string): Promise<string> {
   } catch (err) {
     console.error('Failed to fetch dynamic site title, using fallback', err);
   }
-  return 'The Inner Dimension Torah Library';
+  return fallbackTitle;
 }
 
 async function getInnerTeachings(locale: string): Promise<Teachings[]> {
@@ -74,12 +77,12 @@ export default async function HomePage(props: { searchParams: Promise<{ lang?: s
   const currentLang = (searchParams.lang || 'en') as 'en' | 'he' | 'ru';
   const isRtl = currentLang === 'he';
 
+  const localization = LOCALIZED_CONTENT[currentLang] || LOCALIZED_CONTENT.en;
+
   const [items, siteTitle] = await Promise.all([
     getInnerTeachings(currentLang),
-    getSiteTitle(currentLang)
+    getSiteTitle(currentLang, localization.title)
   ]);
-
-  const localization = LOCALIZED_CONTENT[currentLang] || LOCALIZED_CONTENT.en;
 
   return (
     <div dir={isRtl ? 'rtl' : 'ltr'}>
