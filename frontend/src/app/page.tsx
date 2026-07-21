@@ -5,6 +5,30 @@ type Teachings = {
   video_url: string;
 };
 
+const LOCALIZED_CONTENT = {
+  en: {
+    tag: '“Open my eyes, that I may behold wonders from Your Torah” (Psalms 119:18)',
+    description: 'Synthesizing the inner dimensions of the Torah, Kabbalah, and Chassidic mysticism with modern science, mathematics, psychology, and the rectification of the human soul.',
+    empty: 'No articles found in this language yet.',
+    watch: 'Watch Lecture',
+    brand: 'Gal Einai',
+  },
+  he: {
+    tag: '״גַּל עֵינַי וְאַבִּיטָה נִפְלָאוֹת מִתּוֹרָתֶךָ״ (תהלים קיט, יח)',
+    description: 'שילוב פנימיות התורה, חכמת הקבלה ועמקי החסידות עם עולם המדע, המתמטיקה, הפסיכולוגיה ותיקון הנפש והעולם.',
+    empty: 'אין עדיין מאמרים בשפה זו.',
+    watch: 'צפה בשיעור',
+    brand: 'גל עיני',
+  },
+  ru: {
+    tag: '«Открой глаза мои, и увижу чудеса Торы Твоей» (Псалмы 119:18)',
+    description: 'Синтез внутреннего измерения Торы, Каббалы и хасидского мистицизма с современными науками, математикой, психологией и исправлением души.',
+    empty: 'В этой категории пока нет статей.',
+    watch: 'Смотреть лекцию',
+    brand: 'Галь Эйнай',
+  }
+};
+
 async function getSiteTitle(locale: string): Promise<string> {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
   try {
@@ -47,7 +71,7 @@ async function getInnerTeachings(locale: string): Promise<Teachings[]> {
 
 export default async function HomePage(props: { searchParams: Promise<{ lang?: string }> }) {
   const searchParams = await props.searchParams;
-  const currentLang = searchParams.lang || 'en';
+  const currentLang = (searchParams.lang || 'en') as 'en' | 'he' | 'ru';
   const isRtl = currentLang === 'he';
 
   const [items, siteTitle] = await Promise.all([
@@ -55,145 +79,73 @@ export default async function HomePage(props: { searchParams: Promise<{ lang?: s
     getSiteTitle(currentLang)
   ]);
 
-  return (
-    <main dir={isRtl ? 'rtl' : 'ltr'} style={{ 
-      padding: '3rem 2rem', 
-      fontFamily: 'system-ui, -apple-system, sans-serif',
-      maxWidth: '800px',
-      margin: '0 auto',
-      color: '#1a1a1a',
-      backgroundColor: '#fdfdfd',
-      minHeight: '100vh',
-    }}>
-      <header style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        flexDirection: isRtl ? 'row-reverse' : 'row',
-        flexWrap: 'wrap',
-        gap: '1.5rem',
-        borderBottom: '2px solid #eaeaea',
-        paddingBottom: '1.5rem',
-        marginBottom: '2.5rem'
-      }}>
-        <h1 style={{ 
-          fontSize: '1.8rem', 
-          fontWeight: 700, 
-          margin: 0,
-          color: '#2c3e50',
-          textAlign: isRtl ? 'right' : 'left'
-        }}>{siteTitle}</h1>
-        
-        {/* Modern Segmented Control Language Switcher */}
-        <nav style={{ 
-          display: 'inline-flex', 
-          backgroundColor: '#eeeeee', 
-          padding: '4px', 
-          borderRadius: '30px',
-          direction: 'ltr' /* Always layout switcher LTR for consistent pill order */
-        }}>
-          {[
-            { code: 'en', label: 'English' },
-            { code: 'he', label: 'עברית' },
-            { code: 'ru', label: 'Русский' }
-          ].map((lang) => {
-            const isActive = currentLang === lang.code;
-            return (
-              <a 
-                key={lang.code}
-                href={`?lang=${lang.code}`} 
-                style={{ 
-                  padding: '8px 16px', 
-                  borderRadius: '20px',
-                  fontWeight: isActive ? 600 : 400,
-                  fontSize: '0.9rem',
-                  textDecoration: 'none', 
-                  color: isActive ? '#ffffff' : '#555555',
-                  backgroundColor: isActive ? '#3498db' : 'transparent',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                {lang.label}
-              </a>
-            );
-          })}
-        </nav>
-      </header>
+  const localization = LOCALIZED_CONTENT[currentLang] || LOCALIZED_CONTENT.en;
 
-      {items.length === 0 ? (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '4rem 2rem', 
-          backgroundColor: '#ffffff', 
-          borderRadius: '12px',
-          boxShadow: '0 4px 6px rgba(0,0,0,0.02)',
-          border: '1px solid #f0f0f0',
-          color: '#7f8c8d'
-        }}>
-          <p style={{ fontSize: '1.1rem', margin: 0 }}>
-            {currentLang === 'he' ? 'אין עדיין מאמרים בשפה זו.' : 
-             currentLang === 'ru' ? 'В этой категории пока нет статей.' : 
-             'No articles found in this language yet.'}
-          </p>
-        </div>
-      ) : (
-        <div style={{ display: 'grid', gap: '1.5rem' }}>
-          {items.map((item) => (
-            <article 
-              key={item.id} 
-              style={{ 
-                backgroundColor: '#ffffff', 
-                padding: '2rem', 
-                borderRadius: '12px', 
-                boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
-                border: '1px solid #f0f0f0',
-                textAlign: isRtl ? 'right' : 'left'
-              }}
-            >
-              <h2 style={{ fontSize: '1.5rem', marginTop: 0, marginBottom: '0.5rem', color: '#2c3e50' }}>{item.title}</h2>
-              {item.subtitle && (
-                <p style={{ 
-                  color: '#7f8c8d', 
-                  fontStyle: 'italic', 
-                  fontSize: '1rem',
-                  marginTop: 0,
-                  marginBottom: '1.5rem' 
-                }}>{item.subtitle}</p>
-              )}
-              {item.video_url && (
-                <div style={{ display: 'flex', justifyContent: isRtl ? 'flex-start' : 'flex-end' }}>
-                  <a 
-                    href={item.video_url} 
-                    target="_blank" 
-                    rel="noreferrer" 
-                    style={{ 
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      color: '#ffffff', 
-                      backgroundColor: '#e74c3c',
-                      padding: '8px 16px',
-                      borderRadius: '25px',
-                      textDecoration: 'none',
-                      fontSize: '0.85rem',
-                      fontWeight: 600,
-                      boxShadow: '0 2px 4px rgba(231,76,60,0.2)',
-                      transition: 'background-color 0.2s ease'
-                    }}
-                  >
-                    <span>▶</span>
-                    <span>
-                      {currentLang === 'he' ? 'צפה בשיעור' : 
-                       currentLang === 'ru' ? 'Смотреть лекцию' : 
-                       'Watch Associated Lecture'}
-                    </span>
-                  </a>
-                </div>
-              )}
-            </article>
-          ))}
-        </div>
-      )}
-    </main>
+  return (
+    <div dir={isRtl ? 'rtl' : 'ltr'}>
+      {/* Dynamic Spiritual Hero Banner */}
+      <section className="hero-container">
+        <span className="hero-tag">{localization.tag}</span>
+        <h1 className="hero-title">{siteTitle}</h1>
+        <p className="hero-desc">{localization.description}</p>
+      </section>
+
+      <div className="content-wrapper">
+        {/* Navigation & Segmented Language Control */}
+        <header className="nav-bar">
+          <a href="#" className="nav-logo">
+            <span className="nav-logo-gold">✦</span> {localization.brand}
+          </a>
+          <nav className="lang-switcher-track">
+            {[
+              { code: 'en', label: 'English' },
+              { code: 'he', label: 'עברית' },
+              { code: 'ru', label: 'Русский' }
+            ].map((lang) => {
+              const isActive = currentLang === lang.code;
+              return (
+                <a 
+                  key={lang.code}
+                  href={`?lang=${lang.code}`} 
+                  className={`lang-button ${isActive ? 'active' : ''}`}
+                >
+                  {lang.label}
+                </a>
+              );
+            })}
+          </nav>
+        </header>
+
+        {/* Article Cards */}
+        {items.length === 0 ? (
+          <div className="empty-card">
+            <div className="empty-icon">📜</div>
+            <p className="empty-text">{localization.empty}</p>
+          </div>
+        ) : (
+          <div className="articles-grid">
+            {items.map((item) => (
+              <article key={item.id} className="article-card">
+                <h2 className="article-title">{item.title}</h2>
+                {item.subtitle && <p className="article-subtitle">{item.subtitle}</p>}
+                {item.video_url && (
+                  <div style={{ display: 'flex', justifyContent: isRtl ? 'flex-start' : 'flex-end', marginTop: '1.5rem' }}>
+                    <a 
+                      href={item.video_url} 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className="btn-video"
+                    >
+                      <span>▶</span>
+                      <span>{localization.watch}</span>
+                    </a>
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
